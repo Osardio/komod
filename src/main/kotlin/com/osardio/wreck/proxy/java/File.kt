@@ -27,6 +27,15 @@ class File {
         cu.findAll(ClassOrInterfaceDeclaration::class.java).map { Class(ctx, cu, it) }
     }
 
+    var imports: List<Import>
+        get() = cu.imports.map { Import(ctx, it) }
+        set(value) {
+            ctx.add {
+                cu.imports.clear()
+                cu.imports.addAll(value.map { it.ast })
+            }
+        }
+
     // Получить текущее содержимое после всех изменений
     fun getContent(): String = LexicalPreservingPrinter.print(cu)
 
