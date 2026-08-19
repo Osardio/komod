@@ -1,9 +1,9 @@
-package com.osardio.wreck.proxy.java
+package com.osardio.komod.proxy.java
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.osardio.wreck.context.ChangeContext
-import com.osardio.wreck.proxy.NodeProxy
+import com.osardio.komod.context.ChangeContext
+import com.osardio.komod.proxy.NodeProxy
 
 class Class(
     ctx: ChangeContext,

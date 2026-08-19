@@ -1,8 +1,8 @@
-package com.osardio.wreck.context
+package com.osardio.komod.context
 
-import com.osardio.wreck.JavaFileSet
+import com.osardio.komod.JavaFileSet
 import java.io.File
-import com.osardio.wreck.proxy.java.File as JavaFile
+import com.osardio.komod.proxy.java.File as JavaFile
 
 class ModificationContext(val javaFiles: JavaFileSet) {
     constructor() : this(

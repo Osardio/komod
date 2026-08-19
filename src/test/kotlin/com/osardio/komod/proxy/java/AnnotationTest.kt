@@ -1,10 +1,10 @@
-package com.osardio.wreck.proxy.java
+package com.osardio.komod.proxy.java
 
-import com.osardio.wreck.addAnnotation
-import com.osardio.wreck.classes
-import com.osardio.wreck.methods
-import com.osardio.wreck.modifyJavaTest
-import com.osardio.wreck.parameters
+import com.osardio.komod.addAnnotation
+import com.osardio.komod.classes
+import com.osardio.komod.methods
+import com.osardio.komod.modifyJavaTest
+import com.osardio.komod.parameters
 import org.junit.jupiter.api.Test
 
 class AnnotationTest {

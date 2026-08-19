@@ -1,8 +1,8 @@
-package com.osardio.wreck.proxy.java
+package com.osardio.komod.proxy.java
 
-import com.osardio.wreck.classes
-import com.osardio.wreck.methods
-import com.osardio.wreck.modifyJavaTest
+import com.osardio.komod.classes
+import com.osardio.komod.methods
+import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
 class MethodTest {

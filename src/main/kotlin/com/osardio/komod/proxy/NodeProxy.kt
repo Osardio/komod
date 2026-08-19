@@ -1,6 +1,6 @@
-package com.osardio.wreck.proxy
+package com.osardio.komod.proxy
 
-import com.osardio.wreck.context.ChangeContext
+import com.osardio.komod.context.ChangeContext
 
 abstract class NodeProxy<T>(protected val ctx: ChangeContext, internal open val ast: T) {
     protected fun update(action: T.() -> Unit) {

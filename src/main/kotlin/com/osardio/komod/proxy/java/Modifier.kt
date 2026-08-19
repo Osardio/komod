@@ -1,8 +1,8 @@
-package com.osardio.wreck.proxy.java
+package com.osardio.komod.proxy.java
 
 import com.github.javaparser.ast.Modifier as JModifier
-import com.osardio.wreck.context.ChangeContext
-import com.osardio.wreck.proxy.NodeProxy
+import com.osardio.komod.context.ChangeContext
+import com.osardio.komod.proxy.NodeProxy
 
 class Modifier(
     ctx: ChangeContext,

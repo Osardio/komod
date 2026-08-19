@@ -1,6 +1,6 @@
-package com.osardio.wreck.proxy.java
+package com.osardio.komod.proxy.java
 
-import com.osardio.wreck.modifyJavaTest
+import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
 class FileTest {

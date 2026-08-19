@@ -1,10 +1,10 @@
-package com.osardio.wreck
+package com.osardio.komod
 
-import com.osardio.wreck.context.ModificationContext
-import com.osardio.wreck.proxy.java.Class
-import com.osardio.wreck.proxy.java.File
-import com.osardio.wreck.proxy.java.Method
-import com.osardio.wreck.proxy.java.Parameter
+import com.osardio.komod.context.ModificationContext
+import com.osardio.komod.proxy.java.Class
+import com.osardio.komod.proxy.java.File
+import com.osardio.komod.proxy.java.Method
+import com.osardio.komod.proxy.java.Parameter
 
 class JavaFileSet(internal val files: List<File>) {
     internal fun applyAll() {

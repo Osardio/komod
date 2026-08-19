@@ -1,6 +1,6 @@
-package com.osardio.wreck
+package com.osardio.komod
 
-import com.osardio.wreck.proxy.java.File
+import com.osardio.komod.proxy.java.File
 import kotlin.test.assertEquals
 
 /**
