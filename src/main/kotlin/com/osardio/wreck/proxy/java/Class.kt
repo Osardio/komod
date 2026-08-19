@@ -6,7 +6,6 @@ import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
 
 class Class(
-    override val file: File,
     ctx: ChangeContext,
     private val cu: CompilationUnit,
     override val ast: ClassOrInterfaceDeclaration
@@ -29,7 +28,7 @@ class Class(
         } }
 
     val methods: List<Method> by lazy {
-        ast.methods.map { Method(file, ctx, it) }
+        ast.methods.map { Method(ctx, it) }
     }
 
     override var annotations: List<Annotation>

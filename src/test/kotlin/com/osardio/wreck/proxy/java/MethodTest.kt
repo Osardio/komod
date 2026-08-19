@@ -24,12 +24,14 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            modifiers.contains(Modifier.Keyword.PUBLIC) &&
-            parameters.firstOrNull()?.type?.fqn == "String"
-        }.forEach {
-            it.name = "someNewMethod"
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                modifiers.contains(Modifier.Keyword.PUBLIC) &&
+                parameters.firstOrNull()?.type?.fqn == "String"
+            }) {
+                name = "someNewMethod"
+            }
         }
     }
 
@@ -50,12 +52,42 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            modifiers.contains(Modifier.Keyword.PUBLIC) &&
-            parameters.firstOrNull()?.type?.fqn == "int"
-        }.forEach {
-            it.modifiers = setOf(Modifier.Keyword.PRIVATE)
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                modifiers.contains(Modifier.Keyword.PUBLIC) &&
+                parameters.firstOrNull()?.type?.fqn == "int"
+            }) {
+                modifiers = setOf(Modifier.Keyword.PRIVATE)
+            }
+        }
+    }
+
+    @Test
+    fun addStaticModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public static void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someNewMethod" &&
+                modifiers.contains(Modifier.Keyword.PUBLIC) &&
+                parameters.firstOrNull()?.type?.fqn == "String"
+            }) {
+                modifiers += Modifier.Keyword.STATIC
+            }
         }
     }
 
@@ -76,12 +108,14 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            modifiers.contains(Modifier.Keyword.PRIVATE) &&
-            parameters.firstOrNull()?.type?.fqn == "int"
-        }.forEach {
-            it.modifiers = emptySet()
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                modifiers.contains(Modifier.Keyword.PRIVATE) &&
+                parameters.firstOrNull()?.type?.fqn == "int"
+            }) {
+                modifiers = emptySet()
+            }
         }
     }
 
@@ -105,11 +139,13 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            parameters.firstOrNull()?.type?.fqn == "int"
-        }.forEach {
-            it.statements += Statement("System.out.println(\"Test!\");")
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                parameters.firstOrNull()?.type?.fqn == "int"
+            }) {
+                statements += Statement("System.out.println(\"Test!\");")
+            }
         }
     }
 
@@ -130,12 +166,14 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            parameters.firstOrNull()?.type?.fqn == "int" &&
-            type.fqn.endsWith("void")
-        }.forEach {
-            it.type = Type("int")
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                parameters.firstOrNull()?.type?.fqn == "int" &&
+                type.fqn.endsWith("void")
+            }) {
+                type = Type("int")
+            }
         }
     }
 
@@ -156,12 +194,14 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            parameters.firstOrNull()?.type?.fqn == "int" &&
-            type.fqn.endsWith("void")
-        }.forEach {
-            it.parameters += Parameter("String arg")
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                parameters.firstOrNull()?.type?.fqn == "int" &&
+                type.fqn.endsWith("void")
+            }) {
+                parameters += Parameter("String arg")
+            }
         }
     }
 
@@ -183,12 +223,10 @@ class MethodTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someNewMethod" &&
-            parameters.firstOrNull()?.type?.fqn == "String" &&
-            type.fqn.endsWith("void")
-        }.forEach {
-            it.annotations += Annotation("Deprecated")
+        classes({ name == "MyService" }) {
+            methods({ name == "someNewMethod" && type.fqn.endsWith("void") }) {
+                annotations += Annotation("Deprecated")
+            }
         }
     }
 }

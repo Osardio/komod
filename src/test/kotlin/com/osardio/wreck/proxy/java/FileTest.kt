@@ -1,6 +1,5 @@
 package com.osardio.wreck.proxy.java
 
-import com.osardio.wreck.files
 import com.osardio.wreck.modifyJavaTest
 import org.junit.jupiter.api.Test
 
@@ -23,8 +22,6 @@ class FileTest {
             }
         """.trimIndent()
     ) {
-        files.forEach {
-            it.imports += Import("java.util.List")
-        }
+        imports += Import("java.util.List")
     }
 }

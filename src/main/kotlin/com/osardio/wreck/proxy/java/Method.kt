@@ -6,7 +6,6 @@ import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
 
 class Method(
-    override val file: File,
     ctx: ChangeContext,
     override val ast: MethodDeclaration
 ) : NodeProxy<MethodDeclaration>(ctx, ast), Annotatable {
@@ -16,7 +15,7 @@ class Method(
         set(value) { update { setName(value) } }
 
     var parameters: List<Parameter>
-        get() = ast.parameters.map { Parameter(file, ctx, it) }
+        get() = ast.parameters.map { Parameter(ctx, it) }
         set(value) { update {
             parameters.clear()
             parameters.addAll(value.map { it.ast })
@@ -39,7 +38,7 @@ class Method(
         get() = ast.modifiers.map { Modifier(ctx, it).keyword }.toSet()
         set(value) { update {
             modifiers.clear()
-            modifiers.addAll(value.map { Modifier.toAst(it) })
+            modifiers.addAll(value.sortedBy { it.ordinal }.map { Modifier.toAst(it) })
         } }
 
     override var annotations: List<Annotation>

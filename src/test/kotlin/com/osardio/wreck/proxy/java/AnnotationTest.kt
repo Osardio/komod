@@ -4,6 +4,7 @@ import com.osardio.wreck.addAnnotation
 import com.osardio.wreck.classes
 import com.osardio.wreck.methods
 import com.osardio.wreck.modifyJavaTest
+import com.osardio.wreck.parameters
 import org.junit.jupiter.api.Test
 
 class AnnotationTest {
@@ -26,10 +27,8 @@ class AnnotationTest {
             }
         """.trimIndent()
     ) {
-        classes {
-            name == "MyService"
-        }.forEach {
-            it.addAnnotation("java.lang.annotation.Native")
+        classes({ name == "MyService" }) {
+            addAnnotation("java.lang.annotation.Native")
         }
     }
 
@@ -51,11 +50,10 @@ class AnnotationTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            type.fqn.endsWith("void")
-        }.forEach {
-            it.addAnnotation("java.lang.annotation.Native")
+        classes({ name == "MyService" }) {
+            methods({ name == "someMethod" && type.fqn.endsWith("void") }) {
+                addAnnotation("java.lang.annotation.Native")
+            }
         }
     }
 
@@ -76,11 +74,12 @@ class AnnotationTest {
             }
         """.trimIndent()
     ) {
-        classes.methods {
-            name == "someMethod" &&
-            parameters.firstOrNull()?.type?.fqn == "int"
-        }.forEach { method ->
-            method.parameters.firstOrNull()?.addAnnotation("java.lang.annotation.Native")
+        classes({ name == "MyService" }) {
+            methods({ name == "someMethod" }) {
+                parameters({ type.fqn == "int" }) {
+                    addAnnotation("java.lang.annotation.Native")
+                }
+            }
         }
     }
 }

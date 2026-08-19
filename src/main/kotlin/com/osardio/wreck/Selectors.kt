@@ -4,26 +4,40 @@ import com.osardio.wreck.context.ModificationContext
 import com.osardio.wreck.proxy.java.Class
 import com.osardio.wreck.proxy.java.File
 import com.osardio.wreck.proxy.java.Method
+import com.osardio.wreck.proxy.java.Parameter
 
 class JavaFileSet(internal val files: List<File>) {
-    fun filter(predicate: (File) -> Boolean): JavaFileSet = JavaFileSet(files.filter(predicate))
-
-    val classes: List<Class> by lazy { files.flatMap { it.classes } }
-    val methods: List<Method> by lazy { classes.flatMap { it.methods } }
-
     internal fun applyAll() {
         files.forEach { it.applyChanges() }
     }
 }
 
-fun modification(block: ModificationContext.() -> Unit) {
-    val context = ModificationContext()
-    context.block()
-    context.javaFiles.applyAll()
+fun modification(block: File.() -> Unit) {
+    val files = ModificationContext().javaFiles
+    files.files.forEach { it.block() }
+    files.applyAll()
 }
 
-val ModificationContext.classes: List<Class> get() = javaFiles.classes
-fun ModificationContext.classes(predicate: (Class.() -> Boolean)): List<Class> = classes.filter { predicate(it) }
-val ModificationContext.files: List<File> get() = javaFiles.files
-val List<Class>.methods: List<Method> get() = flatMap { it.methods }
-fun List<Class>.methods(predicate: (Method.() -> Boolean)): List<Method> = methods.filter { predicate(it) }
+fun File.classes(filter: Class.() -> Boolean, action: Class.() -> Unit) {
+    classes.filter { filter(it) }.forEach { it.action() }
+}
+
+fun File.classes(action: Class.() -> Unit) {
+    classes.forEach { it.action() }
+}
+
+fun Class.methods(filter: Method.() -> Boolean, action: Method.() -> Unit) {
+    this.methods.filter { filter(it) }.forEach { it.action() }
+}
+
+fun Class.methods(action: Method.() -> Unit) {
+    this.methods.forEach { it.action() }
+}
+
+fun Method.parameters(filter: Parameter.() -> Boolean, action: Parameter.() -> Unit) {
+    this.parameters.filter { filter(it) }.forEach { it.action() }
+}
+
+fun Method.parameters(action: Parameter.() -> Unit) {
+    this.parameters.forEach { it.action() }
+}
