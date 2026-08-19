@@ -1,6 +1,5 @@
 package com.osardio.wreck.proxy.java
 
-import com.github.javaparser.ast.Modifier
 import com.osardio.wreck.classes
 import com.osardio.wreck.methods
 import com.osardio.wreck.modifyJavaTest
@@ -137,6 +136,32 @@ class MethodTest {
             type.fqn.endsWith("void")
         }.forEach {
             it.type = Type("int")
+        }
+    }
+
+    @Test
+    fun addParameter() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num, String arg) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes.methods {
+            name == "someMethod" &&
+            parameters.firstOrNull()?.type?.fqn == "int" &&
+            type.fqn.endsWith("void")
+        }.forEach {
+            it.parameters += Parameter("String arg")
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.osardio.wreck.proxy.java
 
-import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.ast.stmt.BlockStmt
@@ -37,10 +36,10 @@ class Method(
         } }
 
     var modifiers: Set<Modifier.Keyword>
-        get() = ast.modifiers.map { it.keyword }.toSet()
+        get() = ast.modifiers.map { Modifier(ctx, it).keyword }.toSet()
         set(value) { update {
             modifiers.clear()
-            modifiers.addAll(value.map { Modifier(it) })
+            modifiers.addAll(value.map { Modifier.toAst(it) })
         } }
 
     var annotations: List<AnnotationExpr>
