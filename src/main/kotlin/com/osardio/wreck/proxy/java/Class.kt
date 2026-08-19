@@ -6,10 +6,11 @@ import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
 
 class Class(
+    override val file: File,
     ctx: ChangeContext,
     private val cu: CompilationUnit,
     override val ast: ClassOrInterfaceDeclaration
-) : NodeProxy<ClassOrInterfaceDeclaration>(ctx, ast) {
+) : NodeProxy<ClassOrInterfaceDeclaration>(ctx, ast), Annotatable {
 
     var name: String
         get() = ast.nameAsString
@@ -28,6 +29,13 @@ class Class(
         } }
 
     val methods: List<Method> by lazy {
-        ast.methods.map { Method(ctx, it) }
+        ast.methods.map { Method(file, ctx, it) }
     }
+
+    override var annotations: List<Annotation>
+        get() = ast.annotations.map { Annotation(ctx, it) }
+        set(value) { update {
+            annotations.clear()
+            annotations.addAll(value.map { it.ast })
+        } }
 }

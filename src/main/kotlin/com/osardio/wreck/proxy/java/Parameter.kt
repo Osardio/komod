@@ -6,10 +6,11 @@ import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
 
 class Parameter(
+    override val file: File?,
     ctx: ChangeContext,
     override val ast: Parameter
-) : NodeProxy<Parameter>(ctx, ast) {
-    constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseParameter(value))
+) : NodeProxy<Parameter>(ctx, ast), Annotatable {
+    constructor(value: String) : this(null, ChangeContext(), StaticJavaParser.parseParameter(value))
 
     var name: String
         get() = ast.nameAsString
@@ -22,7 +23,7 @@ class Parameter(
             modifiers.addAll(value.map { Modifier.toAst(it) })
         } }
 
-    var annotations: List<Annotation>
+    override var annotations: List<Annotation>
         get() = ast.annotations.map { Annotation(ctx, it) }
         set(value) { update {
             annotations.clear()

@@ -24,7 +24,7 @@ class File {
     }
 
     val classes: List<Class> by lazy {
-        cu.findAll(ClassOrInterfaceDeclaration::class.java).map { Class(ctx, cu, it) }
+        cu.findAll(ClassOrInterfaceDeclaration::class.java).map { Class(this, ctx, cu, it) }
     }
 
     var imports: List<Import>
@@ -35,6 +35,14 @@ class File {
                 cu.imports.addAll(value.map { it.ast })
             }
         }
+
+    fun ensureImport(fqn: String) {
+        ctx.add {
+            if (cu.imports.none { it.nameAsString == fqn }) {
+                cu.imports.add(StaticJavaParser.parseImport("import $fqn;"))
+            }
+        }
+    }
 
     // Получить текущее содержимое после всех изменений
     fun getContent(): String = LexicalPreservingPrinter.print(cu)
