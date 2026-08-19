@@ -1,7 +1,6 @@
 package com.osardio.wreck.proxy.java
 
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.ast.stmt.BlockStmt
 import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
@@ -42,10 +41,10 @@ class Method(
             modifiers.addAll(value.map { Modifier.toAst(it) })
         } }
 
-    var annotations: List<AnnotationExpr>
-        get() = ast.annotations
+    var annotations: List<Annotation>
+        get() = ast.annotations.map { Annotation(ctx, it) }
         set(value) { update {
             annotations.clear()
-            annotations.addAll(value)
+            annotations.addAll(value.map { it.ast })
         } }
 }

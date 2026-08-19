@@ -164,4 +164,31 @@ class MethodTest {
             it.parameters += Parameter("String arg")
         }
     }
+
+    @Test
+    fun addAnnotation() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                @Deprecated
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes.methods {
+            name == "someNewMethod" &&
+            parameters.firstOrNull()?.type?.fqn == "String" &&
+            type.fqn.endsWith("void")
+        }.forEach {
+            it.annotations += Annotation("Deprecated")
+        }
+    }
 }
