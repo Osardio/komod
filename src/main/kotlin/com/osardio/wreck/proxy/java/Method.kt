@@ -4,7 +4,6 @@ import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.expr.AnnotationExpr
 import com.github.javaparser.ast.stmt.BlockStmt
-import com.github.javaparser.ast.stmt.Statement
 import com.osardio.wreck.context.ChangeContext
 import com.osardio.wreck.proxy.NodeProxy
 
@@ -29,11 +28,11 @@ class Method(
         set(value) { update { setType(value.ast) } }
 
     var statements: List<Statement>
-        get() = ast.body.orElse(null)?.statements ?: emptyList()
+        get() = ast.body.orElse(null)?.statements?.map { Statement(ctx, it) } ?: emptyList()
         set(value) { update {
             val body = ast.body.orElseGet { BlockStmt() }
             body.statements.clear()
-            body.statements.addAll(value)
+            body.statements.addAll(value.map { it.ast })
             setBody(body)
         } }
 
