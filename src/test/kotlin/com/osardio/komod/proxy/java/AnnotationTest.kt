@@ -19,6 +19,8 @@ package com.osardio.komod.proxy.java
 import com.osardio.komod.*
 import org.junit.jupiter.api.Test
 
+// TODO remove annotations test
+// TODO tests with simple Java annotations - they do not require import
 class AnnotationTest {
 
     @Test
@@ -64,6 +66,33 @@ class AnnotationTest {
     ) {
         classes({ name == "MyService" }) {
             methods({ name == "someMethod" && type.fqn.endsWith("void") }) {
+                addAnnotation("java.lang.annotation.Native")
+            }
+        }
+    }
+
+    @Test
+    fun addAnnotationToField() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            import java.lang.annotation.Native;
+            
+            public class MyService {
+                @Native
+                public String name;
+                private int count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "name" && type.fqn.endsWith("String") }) {
                 addAnnotation("java.lang.annotation.Native")
             }
         }

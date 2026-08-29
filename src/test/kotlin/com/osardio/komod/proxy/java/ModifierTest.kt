@@ -17,12 +17,12 @@
 package com.osardio.komod.proxy.java
 
 import com.osardio.komod.classes
+import com.osardio.komod.fields
 import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import com.osardio.komod.parameters
 import org.junit.jupiter.api.Test
 
-// TODO field modifier tests
 class ModifierTest {
 
     @Test
@@ -221,6 +221,78 @@ class ModifierTest {
                 parameters({ name == "arg" && type.fqn == "String" }) {
                     modifiers -= Modifier.Keyword.FINAL
                 }
+            }
+        }
+    }
+
+    @Test
+    fun changeFieldModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                private String name;
+                private int count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "name" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+                modifiers = setOf(Modifier.Keyword.PRIVATE)
+            }
+        }
+    }
+
+    @Test
+    fun addFieldModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                String name;
+                int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                static String name;
+                int count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "name" && type.fqn == "String" }) {
+                modifiers += Modifier.Keyword.STATIC
+            }
+        }
+    }
+
+    @Test
+    fun removeFieldModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public final String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "name" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+                modifiers -= Modifier.Keyword.FINAL
             }
         }
     }

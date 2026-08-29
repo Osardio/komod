@@ -17,8 +17,10 @@
 package com.osardio.komod.proxy.java
 
 import com.osardio.komod.classes
+import com.osardio.komod.fields
 import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
+import com.osardio.komod.parameters
 import org.junit.jupiter.api.Test
 
 class TypeTest {
@@ -47,6 +49,60 @@ class TypeTest {
                         type.fqn.endsWith("void")
             }) {
                 type = Type("int")
+            }
+        }
+    }
+
+    @Test
+    fun changeFieldType() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private long count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "count" }) {
+                type = Type("long")
+            }
+        }
+    }
+
+    @Test
+    fun changeParameterType() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(long num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                        parameters.firstOrNull()?.type?.fqn == "int" &&
+                        type.fqn.endsWith("void")
+            }) {
+                parameters({ name == "num" }) {
+                    type = Type("long")
+                }
             }
         }
     }

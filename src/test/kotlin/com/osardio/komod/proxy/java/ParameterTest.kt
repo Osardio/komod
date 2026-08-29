@@ -21,6 +21,7 @@ import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
+// TODO test to remove parameter
 class ParameterTest {
 
     @Test

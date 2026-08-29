@@ -21,6 +21,8 @@ import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
+// TODO test to add method
+// TODO complex rename: also change method name in usages?
 class MethodTest {
 
     @Test

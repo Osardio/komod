@@ -17,41 +17,56 @@
 package com.osardio.komod.proxy.java
 
 import com.osardio.komod.classes
-import com.osardio.komod.methods
+import com.osardio.komod.fields
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
-// TODO test to remove statement
-class StatementTest {
+class FieldTest {
 
     @Test
-    fun addStatement() = modifyJavaTest(
+    fun renameField() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
-                public void someNewMethod(String arg) { System.out.println(arg); }
-                void someMethod(int num) { System.out.println(num); }
+                public String name;
+                private int count;
             }
         """.trimIndent(),
         expected = """
             package com.example;
             public class MyService {
-                public void someNewMethod(String arg) { System.out.println(arg); }
-                void someMethod(int num) {
-                    System.out.println(num);
-                    System.out.println("Test!");
-                }
+                public String newName;
+                private int count;
             }
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        parameters.firstOrNull()?.type?.fqn == "int"
-            }) {
-                statements += Statement("System.out.println(\"Test!\");")
+            fields({ name == "name" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+                name = "newName"
             }
         }
     }
 
+    @Test
+    fun removeField() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                private int count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "name" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+                remove()
+            }
+        }
+    }
 }

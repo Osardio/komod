@@ -51,5 +51,9 @@ class Parameter(
             }
         }
 
-    val type: Type get() = Type(ctx, ast.type)
+    var type: Type
+        get() = Type(ctx, ast.type)
+        set(value) {
+            update { setType(value.ast) }
+        }
 }

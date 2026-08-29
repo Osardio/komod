@@ -18,6 +18,7 @@ package com.osardio.komod
 
 import com.osardio.komod.context.ModificationContext
 import com.osardio.komod.proxy.java.Class
+import com.osardio.komod.proxy.java.Field
 import com.osardio.komod.proxy.java.File
 import com.osardio.komod.proxy.java.Method
 import com.osardio.komod.proxy.java.Parameter
@@ -56,4 +57,12 @@ fun Method.parameters(filter: Parameter.() -> Boolean, action: Parameter.() -> U
 
 fun Method.parameters(action: Parameter.() -> Unit) {
     this.parameters.forEach { it.action() }
+}
+
+fun Class.fields(filter: Field.() -> Boolean, action: Field.() -> Unit) {
+    this.fields.filter { filter(it) }.forEach { it.action() }
+}
+
+fun Class.fields(action: Field.() -> Unit) {
+    this.fields.forEach { it.action() }
 }
