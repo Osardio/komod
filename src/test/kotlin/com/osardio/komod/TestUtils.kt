@@ -4,10 +4,10 @@ import com.osardio.komod.proxy.java.File
 import kotlin.test.assertEquals
 
 /**
- * Хелпер для тестирования модификаций над одним Java-файлом.
- * @param input исходное содержимое файла
- * @param expected ожидаемое содержимое после применения модификации
- * @param block DSL-блок, который выполняется в контексте этого файла
+ * Helper for testing modifications on a single Java file.
+ * @param input original file content
+ * @param expected expected content after the modification
+ * @param block DSL block that runs in the context of this file
  */
 fun modifyJavaTest(input: String, expected: String, block: File.() -> Unit) {
     val testFile = File("Test.java", input)

@@ -44,11 +44,9 @@ class File {
         }
     }
 
-    // Получить текущее содержимое после всех изменений
     fun getContent(): String = LexicalPreservingPrinter.print(cu)
 
     internal fun applyChanges() {
         ctx.applyAll()
-        // Для реального файла сохранение не нужно, так как тесты не пишут на диск
     }
 }
