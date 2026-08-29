@@ -21,14 +21,14 @@ import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
-class MethodTest {
+class ModifierTest {
 
     @Test
-    fun renameMethod() = modifyJavaTest(
+    fun changeMethodModifier() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
-                public void someMethod(String arg) { System.out.println(arg); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
                 public void someMethod(int num) { System.out.println(num); }
             }
         """.trimIndent(),
@@ -36,7 +36,7 @@ class MethodTest {
             package com.example;
             public class MyService {
                 public void someNewMethod(String arg) { System.out.println(arg); }
-                public void someMethod(int num) { System.out.println(num); }
+                private void someMethod(int num) { System.out.println(num); }
             }
         """.trimIndent()
     ) {
@@ -44,33 +44,67 @@ class MethodTest {
             methods({
                 name == "someMethod" &&
                         modifiers.contains(Modifier.Keyword.PUBLIC) &&
-                        parameters.firstOrNull()?.type?.fqn == "String"
+                        parameters.firstOrNull()?.type?.fqn == "int"
             }) {
-                name = "someNewMethod"
+                modifiers = setOf(Modifier.Keyword.PRIVATE)
             }
         }
     }
 
     @Test
-    fun removeMethod() = modifyJavaTest(
+    fun addMethodModifier() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
-                public void someMethod(int num) { System.out.println(num); }
                 public void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public static void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someNewMethod" &&
+                        modifiers.contains(Modifier.Keyword.PUBLIC) &&
+                        parameters.firstOrNull()?.type?.fqn == "String"
+            }) {
+                modifiers += Modifier.Keyword.STATIC
+            }
+        }
+    }
+
+    @Test
+    fun removeMethodModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                private void someMethod(int num) { System.out.println(num); }
             }
         """.trimIndent(),
         expected = """
             package com.example;
             public class MyService {
                 public void someNewMethod(String arg) { System.out.println(arg); }
+                void someMethod(int num) { System.out.println(num); }
             }
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({ name == "someMethod" && parameters.firstOrNull()?.type?.fqn == "int" }) {
-                remove()
+            methods({
+                name == "someMethod" &&
+                        modifiers.contains(Modifier.Keyword.PRIVATE) &&
+                        parameters.firstOrNull()?.type?.fqn == "int"
+            }) {
+                modifiers = emptySet()
             }
         }
     }
+
 }

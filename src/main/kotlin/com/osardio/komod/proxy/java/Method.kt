@@ -75,4 +75,8 @@ class Method(
                 annotations.addAll(value.map { it.ast })
             }
         }
+
+    fun remove() {
+        update { remove() }
+    }
 }

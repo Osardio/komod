@@ -21,56 +21,34 @@ import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 
-class MethodTest {
+class TypeTest {
 
     @Test
-    fun renameMethod() = modifyJavaTest(
+    fun changeMethodType() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
-                public void someMethod(String arg) { System.out.println(arg); }
                 public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
             }
         """.trimIndent(),
         expected = """
             package com.example;
             public class MyService {
+                public int someMethod(int num) { System.out.println(num); }
                 public void someNewMethod(String arg) { System.out.println(arg); }
-                public void someMethod(int num) { System.out.println(num); }
             }
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
             methods({
                 name == "someMethod" &&
-                        modifiers.contains(Modifier.Keyword.PUBLIC) &&
-                        parameters.firstOrNull()?.type?.fqn == "String"
+                        parameters.firstOrNull()?.type?.fqn == "int" &&
+                        type.fqn.endsWith("void")
             }) {
-                name = "someNewMethod"
+                type = Type("int")
             }
         }
     }
 
-    @Test
-    fun removeMethod() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public void someMethod(int num) { System.out.println(num); }
-                public void someNewMethod(String arg) { System.out.println(arg); }
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            public class MyService {
-                public void someNewMethod(String arg) { System.out.println(arg); }
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            methods({ name == "someMethod" && parameters.firstOrNull()?.type?.fqn == "int" }) {
-                remove()
-            }
-        }
-    }
 }
