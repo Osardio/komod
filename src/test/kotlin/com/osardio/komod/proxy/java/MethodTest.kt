@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java.proxy.java
+package com.osardio.komod.proxy.java
 
 import com.osardio.komod.classes
 import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
-import com.osardio.komod.proxy.java.Annotation
-import com.osardio.komod.proxy.java.Modifier
-import com.osardio.komod.proxy.java.Parameter
-import com.osardio.komod.proxy.java.Statement
-import com.osardio.komod.proxy.java.Type
 import org.junit.jupiter.api.Test
 
 class MethodTest {
