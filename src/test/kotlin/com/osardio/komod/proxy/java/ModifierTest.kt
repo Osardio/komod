@@ -19,9 +19,31 @@ package com.osardio.komod.proxy.java
 import com.osardio.komod.classes
 import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
+import com.osardio.komod.parameters
 import org.junit.jupiter.api.Test
 
+// TODO field modifier tests
 class ModifierTest {
+
+    @Test
+    fun changeClassModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            protected class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+            modifiers = setOf(Modifier.Keyword.PROTECTED)
+        }
+    }
 
     @Test
     fun changeMethodModifier() = modifyJavaTest(
@@ -48,6 +70,54 @@ class ModifierTest {
             }) {
                 modifiers = setOf(Modifier.Keyword.PRIVATE)
             }
+        }
+    }
+
+    @Test
+    fun changeParameterModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(final String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({ name == "someNewMethod" && type.fqn.endsWith("void") }) {
+                parameters({ name == "arg" && type.fqn == "String" }) {
+                    modifiers = setOf(Modifier.Keyword.FINAL)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun addClassModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public final class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+            modifiers += Modifier.Keyword.FINAL
         }
     }
 
@@ -80,6 +150,28 @@ class ModifierTest {
     }
 
     @Test
+    fun removeClassModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public final class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                private void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                private void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+            modifiers -= Modifier.Keyword.FINAL
+        }
+    }
+
+    @Test
     fun removeMethodModifier() = modifyJavaTest(
         input = """
             package com.example;
@@ -103,6 +195,32 @@ class ModifierTest {
                         parameters.firstOrNull()?.type?.fqn == "int"
             }) {
                 modifiers = emptySet()
+            }
+        }
+    }
+
+    @Test
+    fun removeParameterModifier() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(final String arg) { System.out.println(arg); }
+                private void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                private void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({ name == "someNewMethod" && type.fqn.endsWith("void") }) {
+                parameters({ name == "arg" && type.fqn == "String" }) {
+                    modifiers -= Modifier.Keyword.FINAL
+                }
             }
         }
     }
