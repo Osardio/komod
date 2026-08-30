@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-interface Annotatable {
-    var annotations: List<Annotation>
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.type.Type
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
+
+class Type(
+    ctx: ChangeContext,
+    override val ast: Type
+) : NodeProxy<Type>(ctx, ast) {
+    constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseType(value))
+
+    val fqn: String get() = ast.asString()
 }

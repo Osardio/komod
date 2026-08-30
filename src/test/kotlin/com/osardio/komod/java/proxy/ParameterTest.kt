@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.classes
-import com.osardio.komod.methods
+import com.osardio.komod.java.classes
+import com.osardio.komod.java.methods
 import com.osardio.komod.modifyJavaTest
+import com.osardio.komod.java.parameters
 import org.junit.jupiter.api.Test
 
-// TODO test to remove parameter
 class ParameterTest {
 
     @Test
@@ -42,12 +42,34 @@ class ParameterTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        parameters.firstOrNull()?.type?.fqn == "int" &&
-                        type.fqn.endsWith("void")
-            }) {
+            methods({ name == "someMethod" }) {
                 parameters += Parameter("String arg")
+            }
+        }
+    }
+
+    @Test
+    fun removeParameter() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num, String arg) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({ name == "someMethod" }) {
+                parameters({ name == "arg" }) {
+                    remove()
+                }
             }
         }
     }

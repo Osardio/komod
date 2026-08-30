@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.context.ChangeContext
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.ImportDeclaration
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
-abstract class NodeProxy<T>(protected val ctx: ChangeContext, internal open val ast: T) {
-    protected fun update(action: T.() -> Unit) {
-        ctx.add { ast.action() }
-    }
+class Import(
+    ctx: ChangeContext,
+    override val ast: ImportDeclaration
+) : NodeProxy<ImportDeclaration>(ctx, ast) {
+    constructor(fqn: String) : this(ChangeContext(), StaticJavaParser.parseImport("import $fqn;"))
 }

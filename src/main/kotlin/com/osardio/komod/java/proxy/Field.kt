@@ -14,47 +14,41 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.FieldDeclaration
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
-class Class(
+class Field(
     ctx: ChangeContext,
-    private val cu: CompilationUnit,
-    override val ast: ClassOrInterfaceDeclaration
-) : NodeProxy<ClassOrInterfaceDeclaration>(ctx, ast), Annotatable {
+    override val ast: FieldDeclaration
+) : NodeProxy<FieldDeclaration>(ctx, ast), Annotatable {
 
     var name: String
-        get() = ast.nameAsString
+        get() = ast.variables.first().nameAsString
         set(value) {
-            update { setName(value) }
+            update {
+                variables.first().setName(value)
+            }
         }
 
-    val fqn: String by lazy {
-        val pkg = cu.packageDeclaration?.orElse(null)?.nameAsString ?: ""
-        if (pkg.isEmpty()) name else "$pkg.$name"
-    }
+    var type: Type
+        get() = Type(ctx, ast.variables.first().type)
+        set(value) {
+            update {
+                variables.first().setType(value.ast)
+            }
+        }
 
     var modifiers: Set<Modifier.Keyword>
         get() = ast.modifiers.map { Modifier(ctx, it).keyword }.toSet()
         set(value) {
             update {
                 modifiers.clear()
-                modifiers.addAll(value.map { Modifier.toAst(it) })
+                modifiers.addAll(value.sortedBy { it.ordinal }.map { Modifier.toAst(it) })
             }
         }
-
-    val methods: List<Method> by lazy {
-        ast.methods.map { Method(ctx, it) }
-    }
-
-    val fields: List<Field> by lazy {
-        ast.fields.map { Field(ctx, it) }
-    }
 
     override var annotations: List<Annotation>
         get() = ast.annotations.map { Annotation(ctx, it) }
@@ -64,4 +58,8 @@ class Class(
                 annotations.addAll(value.map { it.ast })
             }
         }
+
+    fun remove() {
+        update { remove() }
+    }
 }

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.classes
-import com.osardio.komod.fields
+import com.osardio.komod.java.classes
+import com.osardio.komod.java.fields
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
 

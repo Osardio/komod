@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
-import com.osardio.komod.context.ChangeContext
+import com.osardio.komod.ChangeContext
 import java.io.File
 
 class File {

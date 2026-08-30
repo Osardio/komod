@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.context
+package com.osardio.komod.java
 
-import com.osardio.komod.JavaFileSet
-import java.io.File
-import com.osardio.komod.proxy.java.File as JavaFile
+import com.osardio.komod.java.proxy.Annotatable
+import com.osardio.komod.java.proxy.Annotation
+import com.osardio.komod.java.proxy.File
 
-class ModificationContext(val javaFiles: JavaFileSet) {
-    constructor() : this(
-        JavaFileSet(
-            File(".").walk()
-                .filter { it.isFile && it.extension == "java" }
-                .map { JavaFile(it) }
-                .toList()
-        )
-    )
+context(file: File)
+fun Annotatable.addAnnotation(fqn: String) {
+    file.ensureImport(fqn)
+    annotations += Annotation(fqn.substringAfterLast('.'))
 }

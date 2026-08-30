@@ -14,44 +14,31 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.classes
-import com.osardio.komod.methods
 import com.osardio.komod.modifyJavaTest
 import org.junit.jupiter.api.Test
+import kotlin.collections.plus
 
-// TODO test to remove statement
-class StatementTest {
+class FileTest {
 
     @Test
-    fun addStatement() = modifyJavaTest(
+    fun addImport() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
-                public void someNewMethod(String arg) { System.out.println(arg); }
-                void someMethod(int num) { System.out.println(num); }
+                public void someMethod() {}
             }
         """.trimIndent(),
         expected = """
             package com.example;
+            import java.util.List;
+
             public class MyService {
-                public void someNewMethod(String arg) { System.out.println(arg); }
-                void someMethod(int num) {
-                    System.out.println(num);
-                    System.out.println("Test!");
-                }
+                public void someMethod() {}
             }
         """.trimIndent()
     ) {
-        classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        parameters.firstOrNull()?.type?.fqn == "int"
-            }) {
-                statements += Statement("System.out.println(\"Test!\");")
-            }
-        }
+        imports += Import("java.util.List")
     }
-
 }

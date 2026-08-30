@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package com.osardio.komod
+package com.osardio.komod.java
 
-import com.osardio.komod.context.ModificationContext
-import com.osardio.komod.proxy.java.Class
-import com.osardio.komod.proxy.java.Field
-import com.osardio.komod.proxy.java.File
-import com.osardio.komod.proxy.java.Method
-import com.osardio.komod.proxy.java.Parameter
-
-class JavaFileSet(internal val files: List<File>) {
-    internal fun applyAll() {
-        files.forEach { it.applyChanges() }
-    }
-}
+import com.osardio.komod.java.proxy.Class
+import com.osardio.komod.java.proxy.Field
+import com.osardio.komod.java.proxy.File
+import com.osardio.komod.java.proxy.Method
+import com.osardio.komod.java.proxy.Parameter
+import com.osardio.komod.java.proxy.Statement
 
 fun modification(block: File.() -> Unit) {
-    val files = ModificationContext().javaFiles
+    val files = JavaModificationContext().javaFiles
     files.files.forEach { it.block() }
     files.applyAll()
 }
@@ -41,6 +35,14 @@ fun File.classes(filter: Class.() -> Boolean, action: Class.() -> Unit) {
 
 fun File.classes(action: Class.() -> Unit) {
     classes.forEach { it.action() }
+}
+
+fun Class.fields(filter: Field.() -> Boolean, action: Field.() -> Unit) {
+    this.fields.filter { filter(it) }.forEach { it.action() }
+}
+
+fun Class.fields(action: Field.() -> Unit) {
+    this.fields.forEach { it.action() }
 }
 
 fun Class.methods(filter: Method.() -> Boolean, action: Method.() -> Unit) {
@@ -59,10 +61,10 @@ fun Method.parameters(action: Parameter.() -> Unit) {
     this.parameters.forEach { it.action() }
 }
 
-fun Class.fields(filter: Field.() -> Boolean, action: Field.() -> Unit) {
-    this.fields.filter { filter(it) }.forEach { it.action() }
+fun Method.statements(filter: Statement.() -> Boolean = { true }, action: Statement.() -> Unit) {
+    this.statements.filter { filter(it) }.forEach { it.action() }
 }
 
-fun Class.fields(action: Field.() -> Unit) {
-    this.fields.forEach { it.action() }
+fun Method.statements(action: Statement.() -> Unit) {
+    this.statements.forEach { it.action() }
 }

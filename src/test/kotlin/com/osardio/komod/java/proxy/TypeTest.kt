@@ -14,113 +14,97 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.*
+import com.osardio.komod.java.classes
+import com.osardio.komod.java.fields
+import com.osardio.komod.java.methods
+import com.osardio.komod.modifyJavaTest
+import com.osardio.komod.java.parameters
 import org.junit.jupiter.api.Test
 
-// TODO remove annotations test
-// TODO tests with simple Java annotations - they do not require import
-class AnnotationTest {
+class TypeTest {
 
     @Test
-    fun addAnnotationToClass() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public void someMethod() {}
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            import java.lang.annotation.Native;
-
-            @Native
-            public class MyService {
-                public void someMethod() {}
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            addAnnotation("java.lang.annotation.Native")
-        }
-    }
-
-    @Test
-    fun addAnnotationToMethod() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public void someMethod() {}
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            import java.lang.annotation.Native;
-
-            public class MyService {
-                @Native
-                public void someMethod() {}
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            methods({ name == "someMethod" && type.fqn.endsWith("void") }) {
-                addAnnotation("java.lang.annotation.Native")
-            }
-        }
-    }
-
-    @Test
-    fun addAnnotationToField() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public String name;
-                private int count;
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            import java.lang.annotation.Native;
-            
-            public class MyService {
-                @Native
-                public String name;
-                private int count;
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            fields({ name == "name" && type.fqn.endsWith("String") }) {
-                addAnnotation("java.lang.annotation.Native")
-            }
-        }
-    }
-
-    @Test
-    fun addAnnotationToParameter() = modifyJavaTest(
+    fun changeMethodType() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
                 public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
             }
         """.trimIndent(),
         expected = """
             package com.example;
-            import java.lang.annotation.Native;
-
             public class MyService {
-                public void someMethod(@Native int num) { System.out.println(num); }
+                public int someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
             }
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({ name == "someMethod" }) {
-                parameters({ type.fqn == "int" }) {
-                    addAnnotation("java.lang.annotation.Native")
+            methods({
+                name == "someMethod" &&
+                        parameters.firstOrNull()?.type?.fqn == "int" &&
+                        type.fqn == "void"
+            }) {
+                type = Type("int")
+            }
+        }
+    }
+
+    @Test
+    fun changeFieldType() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private int count;
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public String name;
+                private long count;
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            fields({ name == "count" }) {
+                type = Type("long")
+            }
+        }
+    }
+
+    @Test
+    fun changeParameterType() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(int num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someMethod(long num) { System.out.println(num); }
+                public void someNewMethod(String arg) { System.out.println(arg); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({
+                name == "someMethod" &&
+                        parameters.firstOrNull()?.type?.fqn == "int" &&
+                        type.fqn == "void"
+            }) {
+                parameters({ name == "num" }) {
+                    type = Type("long")
                 }
             }
         }
     }
+
 }

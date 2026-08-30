@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java
 
-import com.github.javaparser.StaticJavaParser
-import com.github.javaparser.ast.type.Type
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import java.io.File
+import com.osardio.komod.java.proxy.File as JavaFile
 
-class Type(
-    ctx: ChangeContext,
-    override val ast: Type
-) : NodeProxy<Type>(ctx, ast) {
-    constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseType(value))
-
-    val fqn: String get() = ast.asString()
+class JavaModificationContext(val javaFiles: JavaFileSet) {
+    constructor() : this(
+        JavaFileSet(
+            File(".").walk()
+                .filter { it.isFile && it.extension == "java" }
+                .map { JavaFile(it) }
+                .toList()
+        )
+    )
 }
+

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.context
+package com.osardio.komod.java
 
-class ChangeContext {
-    private val changes = mutableListOf<() -> Unit>()
-    fun add(change: () -> Unit) {
-        changes.add(change)
-    }
+import com.osardio.komod.java.proxy.File
 
-    fun applyAll() {
-        changes.forEach { it() }
+class JavaFileSet(internal val files: List<File>) {
+    internal fun applyAll() {
+        files.forEach { it.applyChanges() }
     }
 }

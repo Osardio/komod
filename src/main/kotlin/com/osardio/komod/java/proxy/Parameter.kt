@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.stmt.BlockStmt
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.body.Parameter
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
-class Method(
+class Parameter(
     ctx: ChangeContext,
-    override val ast: MethodDeclaration
-) : NodeProxy<MethodDeclaration>(ctx, ast), Annotatable {
+    override val ast: Parameter
+) : NodeProxy<Parameter>(ctx, ast), Annotatable {
+    constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseParameter(value))
 
     var name: String
         get() = ast.nameAsString
@@ -32,38 +33,12 @@ class Method(
             update { setName(value) }
         }
 
-    var parameters: List<Parameter>
-        get() = ast.parameters.map { Parameter(ctx, it) }
-        set(value) {
-            update {
-                parameters.clear()
-                parameters.addAll(value.map { it.ast })
-            }
-        }
-
-    var type: Type
-        get() = Type(ctx, ast.type)
-        set(value) {
-            update { setType(value.ast) }
-        }
-
-    var statements: List<Statement>
-        get() = ast.body.orElse(null)?.statements?.map { Statement(ctx, it) } ?: emptyList()
-        set(value) {
-            update {
-                val body = ast.body.orElseGet { BlockStmt() }
-                body.statements.clear()
-                body.statements.addAll(value.map { it.ast })
-                setBody(body)
-            }
-        }
-
     var modifiers: Set<Modifier.Keyword>
         get() = ast.modifiers.map { Modifier(ctx, it).keyword }.toSet()
         set(value) {
             update {
                 modifiers.clear()
-                modifiers.addAll(value.sortedBy { it.ordinal }.map { Modifier.toAst(it) })
+                modifiers.addAll(value.map { Modifier.toAst(it) })
             }
         }
 
@@ -74,6 +49,12 @@ class Method(
                 annotations.clear()
                 annotations.addAll(value.map { it.ast })
             }
+        }
+
+    var type: Type
+        get() = Type(ctx, ast.type)
+        set(value) {
+            update { setType(value.ast) }
         }
 
     fun remove() {

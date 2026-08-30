@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.classes
-import com.osardio.komod.fields
-import com.osardio.komod.methods
+import com.osardio.komod.java.classes
+import com.osardio.komod.java.fields
+import com.osardio.komod.java.methods
 import com.osardio.komod.modifyJavaTest
-import com.osardio.komod.parameters
+import com.osardio.komod.java.parameters
 import org.junit.jupiter.api.Test
 
 class ModifierTest {
@@ -40,7 +40,7 @@ class ModifierTest {
             }
         """.trimIndent()
     ) {
-        classes({ name == "MyService" && modifiers.contains(Modifier.Keyword.PUBLIC) }) {
+        classes({ name == "MyService" && Modifier.Keyword.PUBLIC in modifiers }) {
             modifiers = setOf(Modifier.Keyword.PROTECTED)
         }
     }
@@ -63,11 +63,7 @@ class ModifierTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        modifiers.contains(Modifier.Keyword.PUBLIC) &&
-                        parameters.firstOrNull()?.type?.fqn == "int"
-            }) {
+            methods({ name == "someMethod" && Modifier.Keyword.PUBLIC in modifiers && parameters.firstOrNull()?.type?.fqn == "int" }) {
                 modifiers = setOf(Modifier.Keyword.PRIVATE)
             }
         }
@@ -91,7 +87,7 @@ class ModifierTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({ name == "someNewMethod" && type.fqn.endsWith("void") }) {
+            methods({ name == "someNewMethod" && type.fqn == "void" }) {
                 parameters({ name == "arg" && type.fqn == "String" }) {
                     modifiers = setOf(Modifier.Keyword.FINAL)
                 }
@@ -139,11 +135,7 @@ class ModifierTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someNewMethod" &&
-                        modifiers.contains(Modifier.Keyword.PUBLIC) &&
-                        parameters.firstOrNull()?.type?.fqn == "String"
-            }) {
+            methods({ name == "someNewMethod" && modifiers.contains(Modifier.Keyword.PUBLIC) && parameters.firstOrNull()?.type?.fqn == "String" }) {
                 modifiers += Modifier.Keyword.STATIC
             }
         }
@@ -189,11 +181,7 @@ class ModifierTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        modifiers.contains(Modifier.Keyword.PRIVATE) &&
-                        parameters.firstOrNull()?.type?.fqn == "int"
-            }) {
+            methods({ name == "someMethod" && modifiers.contains(Modifier.Keyword.PRIVATE) && parameters.firstOrNull()?.type?.fqn == "int" }) {
                 modifiers = emptySet()
             }
         }
@@ -217,7 +205,7 @@ class ModifierTest {
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({ name == "someNewMethod" && type.fqn.endsWith("void") }) {
+            methods({ name == "someNewMethod" && type.fqn == "void" }) {
                 parameters({ name == "arg" && type.fqn == "String" }) {
                     modifiers -= Modifier.Keyword.FINAL
                 }

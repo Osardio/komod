@@ -14,19 +14,43 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.osardio.komod.classes
-import com.osardio.komod.fields
-import com.osardio.komod.methods
+import com.osardio.komod.java.classes
+import com.osardio.komod.java.methods
 import com.osardio.komod.modifyJavaTest
-import com.osardio.komod.parameters
 import org.junit.jupiter.api.Test
 
-class TypeTest {
+// TODO test to add method
+// TODO complex rename: also change method name in usages?
+class MethodTest {
 
     @Test
-    fun changeMethodType() = modifyJavaTest(
+    fun renameMethod() = modifyJavaTest(
+        input = """
+            package com.example;
+            public class MyService {
+                public void someMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent(),
+        expected = """
+            package com.example;
+            public class MyService {
+                public void someNewMethod(String arg) { System.out.println(arg); }
+                public void someMethod(int num) { System.out.println(num); }
+            }
+        """.trimIndent()
+    ) {
+        classes({ name == "MyService" }) {
+            methods({ name == "someMethod" && modifiers.contains(Modifier.Keyword.PUBLIC) && parameters.firstOrNull()?.type?.fqn == "String" }) {
+                name = "someNewMethod"
+            }
+        }
+    }
+
+    @Test
+    fun removeMethod() = modifyJavaTest(
         input = """
             package com.example;
             public class MyService {
@@ -37,74 +61,14 @@ class TypeTest {
         expected = """
             package com.example;
             public class MyService {
-                public int someMethod(int num) { System.out.println(num); }
                 public void someNewMethod(String arg) { System.out.println(arg); }
             }
         """.trimIndent()
     ) {
         classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        parameters.firstOrNull()?.type?.fqn == "int" &&
-                        type.fqn.endsWith("void")
-            }) {
-                type = Type("int")
+            methods({ name == "someMethod" }) {
+                remove()
             }
         }
     }
-
-    @Test
-    fun changeFieldType() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public String name;
-                private int count;
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            public class MyService {
-                public String name;
-                private long count;
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            fields({ name == "count" }) {
-                type = Type("long")
-            }
-        }
-    }
-
-    @Test
-    fun changeParameterType() = modifyJavaTest(
-        input = """
-            package com.example;
-            public class MyService {
-                public void someMethod(int num) { System.out.println(num); }
-                public void someNewMethod(String arg) { System.out.println(arg); }
-            }
-        """.trimIndent(),
-        expected = """
-            package com.example;
-            public class MyService {
-                public void someMethod(long num) { System.out.println(num); }
-                public void someNewMethod(String arg) { System.out.println(arg); }
-            }
-        """.trimIndent()
-    ) {
-        classes({ name == "MyService" }) {
-            methods({
-                name == "someMethod" &&
-                        parameters.firstOrNull()?.type?.fqn == "int" &&
-                        type.fqn.endsWith("void")
-            }) {
-                parameters({ name == "num" }) {
-                    type = Type("long")
-                }
-            }
-        }
-    }
-
 }

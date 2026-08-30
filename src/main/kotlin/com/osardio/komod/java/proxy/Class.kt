@@ -14,24 +14,29 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.github.javaparser.StaticJavaParser
-import com.github.javaparser.ast.body.Parameter
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
-class Parameter(
+class Class(
     ctx: ChangeContext,
-    override val ast: Parameter
-) : NodeProxy<Parameter>(ctx, ast), Annotatable {
-    constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseParameter(value))
+    private val cu: CompilationUnit,
+    override val ast: ClassOrInterfaceDeclaration
+) : NodeProxy<ClassOrInterfaceDeclaration>(ctx, ast), Annotatable {
 
     var name: String
         get() = ast.nameAsString
         set(value) {
             update { setName(value) }
         }
+
+    val fqn: String by lazy {
+        val pkg = cu.packageDeclaration?.orElse(null)?.nameAsString ?: ""
+        if (pkg.isEmpty()) name else "$pkg.$name"
+    }
 
     var modifiers: Set<Modifier.Keyword>
         get() = ast.modifiers.map { Modifier(ctx, it).keyword }.toSet()
@@ -42,6 +47,14 @@ class Parameter(
             }
         }
 
+    val methods: List<Method> by lazy {
+        ast.methods.map { Method(ctx, it) }
+    }
+
+    val fields: List<Field> by lazy {
+        ast.fields.map { Field(ctx, it) }
+    }
+
     override var annotations: List<Annotation>
         get() = ast.annotations.map { Annotation(ctx, it) }
         set(value) {
@@ -49,11 +62,5 @@ class Parameter(
                 annotations.clear()
                 annotations.addAll(value.map { it.ast })
             }
-        }
-
-    var type: Type
-        get() = Type(ctx, ast.type)
-        set(value) {
-            update { setType(value.ast) }
         }
 }

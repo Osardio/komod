@@ -14,30 +14,47 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
-import com.github.javaparser.ast.body.FieldDeclaration
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.stmt.BlockStmt
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
-class Field(
+class Method(
     ctx: ChangeContext,
-    override val ast: FieldDeclaration
-) : NodeProxy<FieldDeclaration>(ctx, ast), Annotatable {
+    override val ast: MethodDeclaration
+) : NodeProxy<MethodDeclaration>(ctx, ast), Annotatable {
 
     var name: String
-        get() = ast.variables.first().nameAsString
+        get() = ast.nameAsString
+        set(value) {
+            update { setName(value) }
+        }
+
+    var parameters: List<Parameter>
+        get() = ast.parameters.map { Parameter(ctx, it) }
         set(value) {
             update {
-                variables.first().setName(value)
+                parameters.clear()
+                parameters.addAll(value.map { it.ast })
             }
         }
 
     var type: Type
-        get() = Type(ctx, ast.variables.first().type)
+        get() = Type(ctx, ast.type)
+        set(value) {
+            update { setType(value.ast) }
+        }
+
+    var statements: List<Statement>
+        get() = ast.body.orElse(null)?.statements?.map { Statement(ctx, it) } ?: emptyList()
         set(value) {
             update {
-                variables.first().setType(value.ast)
+                val body = ast.body.orElseGet { BlockStmt() }
+                body.statements.clear()
+                body.statements.addAll(value.map { it.ast })
+                setBody(body)
             }
         }
 

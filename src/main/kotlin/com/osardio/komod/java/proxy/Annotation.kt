@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.proxy.java
+package com.osardio.komod.java.proxy
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.expr.AnnotationExpr
-import com.osardio.komod.context.ChangeContext
-import com.osardio.komod.proxy.NodeProxy
+import com.osardio.komod.ChangeContext
+import com.osardio.komod.NodeProxy
 
 class Annotation(
     ctx: ChangeContext,
