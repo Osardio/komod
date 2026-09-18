@@ -1,5 +1,8 @@
+# komod-core
 .gradle
 .kotlin
 .idea
 build
+komod-core/build
+komod-core/.gradle
 AGENTS.md
