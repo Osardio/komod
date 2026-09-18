@@ -23,7 +23,7 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
 import com.osardio.komod.ChangeContext
 import java.io.File
 
-class File {
+class JavaFile {
     private val ctx = ChangeContext()
     private val cu: CompilationUnit
     val name: String

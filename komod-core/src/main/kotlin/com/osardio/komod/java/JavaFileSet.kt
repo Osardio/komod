@@ -16,9 +16,9 @@
 
 package com.osardio.komod.java
 
-import com.osardio.komod.java.proxy.File
+import com.osardio.komod.java.proxy.JavaFile
 
-class JavaFileSet(internal val files: List<File>) {
+class JavaFileSet(internal val files: List<JavaFile>) {
     internal fun applyAll() {
         files.forEach { it.applyChanges() }
     }

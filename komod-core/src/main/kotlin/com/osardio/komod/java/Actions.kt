@@ -18,9 +18,9 @@ package com.osardio.komod.java
 
 import com.osardio.komod.java.proxy.Annotatable
 import com.osardio.komod.java.proxy.Annotation
-import com.osardio.komod.java.proxy.File
+import com.osardio.komod.java.proxy.JavaFile
 
-context(file: File)
+context(file: JavaFile)
 fun Annotatable.addAnnotation(fqn: String) {
     file.ensureImport(fqn)
     annotations += Annotation(fqn.substringAfterLast('.'))

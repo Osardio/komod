@@ -16,24 +16,19 @@
 
 package com.osardio.komod.java
 
-import com.osardio.komod.java.proxy.Class
-import com.osardio.komod.java.proxy.Field
-import com.osardio.komod.java.proxy.File
-import com.osardio.komod.java.proxy.Method
-import com.osardio.komod.java.proxy.Parameter
-import com.osardio.komod.java.proxy.Statement
+import com.osardio.komod.java.proxy.*
 
-fun modification(block: File.() -> Unit) {
+fun modification(block: JavaFile.() -> Unit) {
     val files = JavaModificationContext().javaFiles
     files.files.forEach { it.block() }
     files.applyAll()
 }
 
-fun File.classes(filter: Class.() -> Boolean, action: Class.() -> Unit) {
+fun JavaFile.classes(filter: Class.() -> Boolean, action: Class.() -> Unit) {
     classes.filter { filter(it) }.forEach { it.action() }
 }
 
-fun File.classes(action: Class.() -> Unit) {
+fun JavaFile.classes(action: Class.() -> Unit) {
     classes.forEach { it.action() }
 }
 

@@ -16,8 +16,8 @@
 
 package com.osardio.komod.java
 
+import com.osardio.komod.java.proxy.JavaFile
 import java.io.File
-import com.osardio.komod.java.proxy.File as JavaFile
 
 class JavaModificationContext(val javaFiles: JavaFileSet) {
     constructor() : this(

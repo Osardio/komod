@@ -16,7 +16,7 @@
 
 package com.osardio.komod
 
-import com.osardio.komod.java.proxy.File
+import com.osardio.komod.java.proxy.JavaFile
 import kotlin.test.assertEquals
 
 /**
@@ -25,8 +25,8 @@ import kotlin.test.assertEquals
  * @param expected expected content after the modification
  * @param block DSL block that runs in the context of this file
  */
-fun modifyJavaTest(input: String, expected: String, block: File.() -> Unit) {
-    val testFile = File("Test.java", input)
+fun modifyJavaTest(input: String, expected: String, block: JavaFile.() -> Unit) {
+    val testFile = JavaFile("Test.java", input)
     testFile.block()
     testFile.applyChanges()
     val actual = testFile.getContent()
