@@ -26,4 +26,6 @@ class Annotation(
     override val ast: AnnotationExpr
 ) : NodeProxy<AnnotationExpr>(ctx, ast) {
     constructor(value: String) : this(ChangeContext(), StaticJavaParser.parseAnnotation("@$value"))
+
+    val name: String get() = ast.nameAsString
 }

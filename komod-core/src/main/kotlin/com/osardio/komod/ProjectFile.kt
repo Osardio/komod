@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.osardio.komod.java
+package com.osardio.komod
 
-import com.osardio.komod.java.proxy.JavaFile
+import java.io.File
 
-class JavaFileSet(internal val files: List<JavaFile>) {
-    internal fun applyAll() {
-        files.forEach { it.applyChanges() }
-    }
+interface ProjectFile {
+    val file: File
+    val name: String
+
+    /**
+     * Applies the accumulated changes; if the content changed, persists the result
+     * (e.g. rewrites the file in-place). Files untouched by the modification are left as-is.
+     *
+     * @return `true` if the file was changed and persisted, `false` if nothing was applied.
+     */
+    fun commit(): Boolean
 }

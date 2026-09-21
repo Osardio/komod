@@ -21,22 +21,26 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
 import com.osardio.komod.ChangeContext
+import com.osardio.komod.ProjectFile
 import java.io.File
 
-class JavaFile {
+class JavaFile(
+    override val file: File
+) : ProjectFile {
     private val ctx = ChangeContext()
-    private val cu: CompilationUnit
-    val name: String
-
-    constructor(file: File) {
-        name = file.name
-        cu = StaticJavaParser.parse(file)
+    private var forcedContent: String? = null
+    private val source: String by lazy { forcedContent ?: file.readText() }
+    private val cu: CompilationUnit by lazy {
+        val unit = StaticJavaParser.parse(source)
+        LexicalPreservingPrinter.setup(unit)
+        unit
     }
 
-    constructor(name: String, content: String) {
-        this.name = name
-        cu = StaticJavaParser.parse(content)
-        LexicalPreservingPrinter.setup(cu)
+    override val name: String = file.name
+
+    /** Constructs an in-memory file without reading or writing the disk. */
+    constructor(name: String, content: String) : this(File(name)) {
+        forcedContent = content
     }
 
     val classes: List<Class> by lazy {
@@ -61,6 +65,19 @@ class JavaFile {
     }
 
     fun getContent(): String = LexicalPreservingPrinter.print(cu)
+
+    /**
+     * Applies the accumulated changes; if the content changed, rewrites the file in-place.
+     * Files untouched by the modification are neither parsed nor written.
+     */
+    override fun commit(): Boolean {
+        if (!ctx.hasChanges) return false
+        ctx.applyAll()
+        val now = getContent()
+        if (now == source) return false
+        if (forcedContent == null) file.writeText(now)
+        return true
+    }
 
     internal fun applyChanges() {
         ctx.applyAll()

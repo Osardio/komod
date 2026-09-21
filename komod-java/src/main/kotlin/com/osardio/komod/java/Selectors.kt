@@ -16,12 +16,15 @@
 
 package com.osardio.komod.java
 
+import com.osardio.komod.ProjectFile
 import com.osardio.komod.java.proxy.*
 
-fun modification(block: JavaFile.() -> Unit) {
-    val files = JavaModificationContext().javaFiles
-    files.files.forEach { it.block() }
-    files.applyAll()
+/**
+ * The only [ProjectFile] extension: runs the block on the receiver if it is a [JavaFile],
+ * silently no-ops for other file kinds.
+ */
+fun ProjectFile.java(action: JavaFile.() -> Unit) {
+    (this as? JavaFile)?.action()
 }
 
 fun JavaFile.classes(filter: Class.() -> Boolean, action: Class.() -> Unit) {

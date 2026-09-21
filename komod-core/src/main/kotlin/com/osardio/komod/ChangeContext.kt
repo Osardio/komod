@@ -18,11 +18,15 @@ package com.osardio.komod
 
 class ChangeContext {
     private val changes = mutableListOf<() -> Unit>()
+
+    val hasChanges: Boolean get() = changes.isNotEmpty()
+
     fun add(change: () -> Unit) {
         changes.add(change)
     }
 
     fun applyAll() {
         changes.forEach { it() }
+        changes.clear()
     }
 }

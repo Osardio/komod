@@ -16,17 +16,13 @@
 
 package com.osardio.komod.java
 
+import com.osardio.komod.ProjectFile
+import com.osardio.komod.ProjectFileFactory
 import com.osardio.komod.java.proxy.JavaFile
 import java.io.File
 
-class JavaModificationContext(val javaFiles: JavaFileSet) {
-    constructor() : this(
-        JavaFileSet(
-            File(".").walk()
-                .filter { it.isFile && it.extension == "java" }
-                .map { JavaFile(it) }
-                .toList()
-        )
-    )
+/** Creates [JavaFile] wrappers for `.java` sources. Registered via the ServiceLoader. */
+class JavaProjectFileFactory : ProjectFileFactory {
+    override fun create(file: File): ProjectFile? =
+        if (file.isFile && file.extension == "java") JavaFile(file) else null
 }
-

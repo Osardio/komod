@@ -17,6 +17,7 @@
 package com.osardio.komod
 
 import com.osardio.komod.java.proxy.JavaFile
+import java.io.File
 import kotlin.test.assertEquals
 
 /**
@@ -31,4 +32,12 @@ fun modifyJavaTest(input: String, expected: String, block: JavaFile.() -> Unit) 
     testFile.applyChanges()
     val actual = testFile.getContent()
     assertEquals(expected, actual)
+}
+
+/** Creates a unique temp directory containing `name` with the given [content]; returns the directory. */
+fun createTempDir(name: String, content: String): File {
+    val dir = File(System.getProperty("java.io.tmpdir"), "komod-" + java.util.UUID.randomUUID())
+    check(dir.mkdirs())
+    File(dir, name).writeText(content)
+    return dir
 }

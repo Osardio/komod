@@ -22,6 +22,8 @@ import com.osardio.komod.java.proxy.JavaFile
 
 context(file: JavaFile)
 fun Annotatable.addAnnotation(fqn: String) {
+    val simple = fqn.substringAfterLast('.')
+    if (annotations.any { it.name == fqn || it.name == simple }) return
     file.ensureImport(fqn)
-    annotations += Annotation(fqn.substringAfterLast('.'))
+    annotations += Annotation(simple)
 }
