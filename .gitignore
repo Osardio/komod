@@ -5,4 +5,5 @@
 build
 komod-core/build
 komod-core/.gradle
+e2e
 AGENTS.md

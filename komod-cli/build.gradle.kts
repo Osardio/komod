@@ -23,6 +23,7 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-supplier:1.9.27")
     implementation("org.apache.maven:maven-model-builder:3.9.12")
     implementation("org.apache.maven:maven-resolver-provider:3.9.12")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     testImplementation(kotlin("test"))
     testImplementation(project(":komod-java"))
