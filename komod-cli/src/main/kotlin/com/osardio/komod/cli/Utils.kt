@@ -16,11 +16,20 @@
 
 package com.osardio.komod.cli
 
-import com.osardio.komod.ProjectFile
-import com.osardio.komod.ProjectFileFactory
+import com.osardio.komod.core.Modification
+import com.osardio.komod.core.ProjectFile
+import com.osardio.komod.core.ProjectFileFactory
 import java.io.File
 
+/** Classloader that can see komod-core, used as the parent of the recipe classloader. */
+internal val CoreClassLoader: ClassLoader
+    get() = Modification::class.java.classLoader
+
 internal val EXCLUDED_DIRECTORIES = setOf("build", "out", "target")
+
+internal fun parseCoordinates(coordinates: String): Triple<String, String, String>? =
+    coordinates.split(':').takeIf { it.size == 3 && it.all { part -> part.isNotBlank() } }
+        ?.let { Triple(it[0], it[1], it[2]) }
 
 /**
  * Lazily walks [root] collecting [ProjectFile] instances for the kinds the given [factories] support

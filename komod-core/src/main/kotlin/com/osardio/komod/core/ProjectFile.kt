@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.osardio.komod
+package com.osardio.komod.core
 
 import java.io.File
 

@@ -17,14 +17,9 @@
 package com.osardio.komod.cli
 
 import org.apache.maven.model.Model
-import org.apache.maven.model.building.DefaultModelBuilderFactory
-import org.apache.maven.model.building.ModelBuilder
-import org.apache.maven.model.building.ModelBuildingRequest
-import org.apache.maven.model.building.ModelBuildingResult
-import org.apache.maven.model.building.Result
-import org.eclipse.aether.supplier.RepositorySystemSupplier
+import org.apache.maven.model.building.*
 import java.io.File
-import java.util.Properties
+import java.util.*
 
 /**
  * Wraps the default model builder and injects the running JVM system properties into every
@@ -33,16 +28,15 @@ import java.util.Properties
  * system properties.
  */
 class SystemPropertiesModelBuilder : ModelBuilder {
+
     private val delegate: ModelBuilder = DefaultModelBuilderFactory().newInstance()
 
-    private fun prepare(request: ModelBuildingRequest): ModelBuildingRequest = request.let {
-        it.apply {
-            if (systemProperties == null || systemProperties.isEmpty()) {
-                setSystemProperties(currentSystemProperties())
-            }
-            if (userProperties == null || userProperties.isEmpty()) {
-                setUserProperties(Properties())
-            }
+    private fun prepare(request: ModelBuildingRequest): ModelBuildingRequest = request.apply {
+        if (systemProperties == null || systemProperties.isEmpty) {
+            systemProperties = currentSystemProperties()
+        }
+        if (userProperties == null || userProperties.isEmpty) {
+            userProperties = Properties()
         }
     }
 
@@ -58,6 +52,7 @@ class SystemPropertiesModelBuilder : ModelBuilder {
         delegate.buildRawModel(file, validationLevel, locationTracking) as Result<Model>
 
     companion object {
+
         private fun currentSystemProperties(): Properties {
             val props = Properties()
             System.getProperties().toList().forEach { (key, value) ->

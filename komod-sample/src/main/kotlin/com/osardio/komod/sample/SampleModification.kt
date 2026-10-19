@@ -16,8 +16,8 @@
 
 package com.osardio.komod.sample
 
-import com.osardio.komod.Modification
-import com.osardio.komod.ProjectFile
+import com.osardio.komod.core.Modification
+import com.osardio.komod.core.ProjectFile
 import com.osardio.komod.java.classes
 import com.osardio.komod.java.java
 import com.osardio.komod.java.methods

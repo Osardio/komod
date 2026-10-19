@@ -16,7 +16,7 @@
 
 package com.osardio.komod.java
 
-import com.osardio.komod.ProjectFile
+import com.osardio.komod.core.ProjectFile
 import com.osardio.komod.java.proxy.*
 
 /**

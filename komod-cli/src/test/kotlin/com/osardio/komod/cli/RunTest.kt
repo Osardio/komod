@@ -16,36 +16,33 @@
 
 package com.osardio.komod.cli
 
-import com.osardio.komod.Modification
+import com.osardio.komod.core.Modification
+import com.osardio.komod.core.ProjectFile
 import com.osardio.komod.java.addAnnotation
 import com.osardio.komod.java.classes
 import com.osardio.komod.java.java
-import com.osardio.komod.ProjectFile
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
-
-/** Recipe that adds an annotation to every class touching the AST of each file. */
-class AddNative : Modification {
-    override fun modification(): ProjectFile.() -> Unit = {
-        java {
-            classes {
-                addAnnotation("java.lang.annotation.Native")
-            }
-        }
-    }
-}
 
 class RunTest {
-    private val fakeJars = listOf(File("nonexistent.jar"))
-    private val resolver: (String) -> ResolveOutcome = { Resolved(fakeJars) }
-    private val loader: (String, List<File>) -> Result<Recipe> =
-        { _, _ -> Result.success(Recipe(AddNative(), AddNative::class.java.classLoader)) }
 
-    private fun recipeArgs(target: File): Array<String> =
-        arrayOf("-a", "g:recipe:1.0", "-m", AddNative::class.java.name, "-t", target.absolutePath)
+    private val fakeJars = listOf(File("nonexistent.jar"))
+    private val fakeResolver = mockk<ArtifactResolver>()
+    private val fakeLoader = mockk<ModificationLoader>()
+
+    @BeforeEach
+    fun setup() {
+        every { fakeResolver.resolve(any<String>()) } returns fakeJars
+        every { fakeLoader.loadModification(any<String>(), any<List<File>>()) } returns LoadedModification(
+            AddNative(),
+            AddNative::class.java.classLoader
+        )
+    }
 
     @Test
     fun parseSkipIsNotFatal() {
@@ -54,7 +51,7 @@ class RunTest {
         File(root, "Ok.java").writeText("public class Ok {}")
         File(root, "Broken.java").writeText("this is not java !!!")
 
-        val code = runMain(recipeArgs(root), resolver, loader)
+        val code = ModificationRunner(fakeResolver, fakeLoader).run(recipeArgs(root))
 
         assertEquals(0, code)
         assertTrue(File(root, "Ok.java").readText().contains("@Native"))
@@ -67,16 +64,31 @@ class RunTest {
         root.mkdirs()
         File(root, "Service.java").writeText("public class Service { public void go() {} }")
 
-        assertEquals(0, runMain(recipeArgs(root), resolver, loader))
+        assertEquals(0, ModificationRunner(fakeResolver, fakeLoader).run(recipeArgs(root)))
         val once = File(root, "Service.java").readText()
         assertTrue(once.contains("@Native"))
         assertTrue(once.contains("import java.lang.annotation.Native;"))
         assertEquals(1, once.count { it == '@' }, "annotation added exactly once")
 
         // second run on the already modified file: no change, no duplicate annotation
-        assertEquals(0, runMain(recipeArgs(root), resolver, loader))
+        assertEquals(0, ModificationRunner(fakeResolver, fakeLoader).run(recipeArgs(root)))
         val twice = File(root, "Service.java").readText()
         assertEquals(once, twice, "second run must not alter the file")
         assertEquals(1, twice.count { it == '@' }, "annotation must remain single after re-run")
+    }
+
+    private fun recipeArgs(target: File): Array<String> =
+        arrayOf("-a", "g:recipe:1.0", "-m", AddNative::class.java.name, "-t", target.absolutePath)
+
+    /** Recipe that adds an annotation to every class touching the AST of each file. */
+    class AddNative : Modification {
+
+        override fun modification(): ProjectFile.() -> Unit = {
+            java {
+                classes {
+                    addAnnotation("java.lang.annotation.Native")
+                }
+            }
+        }
     }
 }

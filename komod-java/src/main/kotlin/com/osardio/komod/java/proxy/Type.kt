@@ -18,7 +18,7 @@ package com.osardio.komod.java.proxy
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.type.Type
-import com.osardio.komod.ChangeContext
+import com.osardio.komod.core.ChangeContext
 import com.osardio.komod.NodeProxy
 
 class Type(

@@ -20,8 +20,8 @@ import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
-import com.osardio.komod.ChangeContext
-import com.osardio.komod.ProjectFile
+import com.osardio.komod.core.ChangeContext
+import com.osardio.komod.core.ProjectFile
 import java.io.File
 
 class JavaFile(

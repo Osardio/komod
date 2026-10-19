@@ -16,7 +16,7 @@
 
 package com.osardio.komod.java.proxy
 
-import com.osardio.komod.ChangeContext
+import com.osardio.komod.core.ChangeContext
 import com.osardio.komod.NodeProxy
 import com.github.javaparser.ast.Modifier as JModifier
 

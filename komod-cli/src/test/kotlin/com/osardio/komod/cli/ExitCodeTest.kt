@@ -16,77 +16,40 @@
 
 package com.osardio.komod.cli
 
-import com.osardio.komod.Modification
-import com.osardio.komod.ProjectFile
-import com.osardio.komod.loadProjectFileFactories
+import com.osardio.komod.core.Modification
+import com.osardio.komod.core.ProjectFile
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-/** Builds a small project tree on disk for scanning. */
-private fun projectTree(): File {
-    val root = File(System.getProperty("java.io.tmpdir"), "komod-walk-" + java.util.UUID.randomUUID())
-    root.mkdirs()
-    File(root, "A.java").writeText("public class A {}")
-    File(root, "B.txt").writeText("not java")
-    val build = File(root, "build"); build.mkdirs()
-    File(build, "C.java").writeText("public class C {}")
-    val git = File(root, ".git"); git.mkdirs()
-    File(git, "D.java").writeText("public class D {}")
-    val out = File(root, "out"); out.mkdirs()
-    File(out, "E.java").writeText("public class E {}")
-    val sub = File(root, "src/main"); sub.mkdirs()
-    File(sub, "F.java").writeText("public class F {}")
-    val target = File(root, "target"); target.mkdirs()
-    File(target, "G.java").writeText("public class G {}")
-    return root
-}
+class ExitCodeTest {
 
-class WalkTest {
-    private val factories = loadProjectFileFactories(Modification::class.java.classLoader)
+    private val fakeJars = listOf(File("nonexistent.jar"))
+    private val goodResolver = mockk<ArtifactResolver>()
+    private val badResolver = mockk<ArtifactResolver>()
+    private val badLoader = mockk<ModificationLoader>()
 
-    @Test
-    fun scanProjectSkipsExcludedDirs() {
-        val root = projectTree()
-        val files = scanProject(root, noExcludes = false, factories = factories)
-        val names = files.map { it.name }.toSet()
-        assertTrue("A.java" in names)
-        assertTrue("F.java" in names)
-        assertTrue("C.java" !in names, "build dir excluded")
-        assertTrue("D.java" !in names, ".git dir excluded")
-        assertTrue("E.java" !in names, "out dir excluded")
-        assertTrue("G.java" !in names, "target dir excluded")
-        assertTrue(files.all { it.file.extension == "java" }, "non-java files skipped")
-    }
-
-    @Test
-    fun scanProjectWithNoExcludesIncludesEverything() {
-        val root = projectTree()
-        val files = scanProject(root, noExcludes = true, factories = factories)
-        val names = files.map { it.name }.toSet()
-        assertTrue("C.java" in names || "D.java" in names || "E.java" in names || "G.java" in names)
-        assertTrue(files.all { it.file.extension == "java" })
-    }
-}
-
-class ExitCode {
     /** No-op modification: touches no file, so nothing is committed. */
     class Noop : Modification {
+
         override fun modification(): ProjectFile.() -> Unit = { }
     }
 
-    private val fakeJars = listOf(File("nonexistent.jar"))
-    private val loader: (String, List<File>) -> Result<Recipe> =
-        { _, _ -> Result.success(Recipe(Noop(), Noop::class.java.classLoader)) }
-    private val resolver: (String) -> ResolveOutcome = { Resolved(fakeJars) }
+    @BeforeEach
+    fun setup() {
+        every { goodResolver.resolve(any<String>()) } returns fakeJars
+        every { badResolver.resolve(any()) } throws ResolutionException("error")
+        every { badLoader.loadModification(any(), any()) } throws IllegalStateException("bad")
+    }
 
     @Test
     fun targetNotADirectoryIsFailure() {
         val root = projectTree()
-        val code = runMain(
-            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", "${root}/A.java"),
-            resolver, loader
+        val code = ModificationRunner().run(
+            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", "${root}/A.java")
         )
         assertEquals(1, code)
     }
@@ -94,9 +57,8 @@ class ExitCode {
     @Test
     fun noopModificationOnValidTargetSucceeds() {
         val root = projectTree()
-        val code = runMain(
-            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", root.absolutePath),
-            resolver, loader
+        val code = ModificationRunner(goodResolver).run(
+            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", root.absolutePath)
         )
         assertEquals(0, code)
     }
@@ -104,10 +66,8 @@ class ExitCode {
     @Test
     fun resolveFailureIsFailure() {
         val root = projectTree()
-        val badResolver: (String) -> ResolveOutcome = { ResolveError("not found $it") }
-        val code = runMain(
-            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", root.absolutePath),
-            badResolver, loader
+        val code = ModificationRunner(badResolver, ModificationLoader()).run(
+            arrayOf("-a", "g:a:1", "-m", Noop::class.java.name, "-t", root.absolutePath)
         )
         assertEquals(1, code)
     }
@@ -115,10 +75,8 @@ class ExitCode {
     @Test
     fun loadFailureIsFailure() {
         val root = projectTree()
-        val badLoader: (String, List<File>) -> Result<Recipe> = { _, _ -> Result.failure(IllegalStateException("bad")) }
-        val code = runMain(
-            arrayOf("-a", "g:a:1", "-m", "Missing", "-t", root.absolutePath),
-            resolver, badLoader
+        val code = ModificationRunner(ArtifactResolver(), badLoader).run(
+            arrayOf("-a", "g:a:1", "-m", "Missing", "-t", root.absolutePath)
         )
         assertEquals(1, code)
     }

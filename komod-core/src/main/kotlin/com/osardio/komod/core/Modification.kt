@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package com.osardio.komod
+package com.osardio.komod.core
 
-class ChangeContext {
-    private val changes = mutableListOf<() -> Unit>()
-
-    val hasChanges: Boolean get() = changes.isNotEmpty()
-
-    fun add(change: () -> Unit) {
-        changes.add(change)
-    }
-
-    fun applyAll() {
-        changes.forEach { it() }
-        changes.clear()
-    }
+interface Modification {
+    fun modification(): ProjectFile.() -> Unit
 }

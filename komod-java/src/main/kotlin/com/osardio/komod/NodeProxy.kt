@@ -16,6 +16,8 @@
 
 package com.osardio.komod
 
+import com.osardio.komod.core.ChangeContext
+
 abstract class NodeProxy<T>(protected val ctx: ChangeContext, internal open val ast: T) {
     protected fun update(action: T.() -> Unit) {
         ctx.add { ast.action() }

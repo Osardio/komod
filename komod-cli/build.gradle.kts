@@ -26,6 +26,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.11")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.14.11")
     testImplementation(project(":komod-java"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testImplementation("org.junit.platform:junit-platform-launcher")
